@@ -1,92 +1,81 @@
 import streamlit as st
+import requests
+import plotly.express as px
 import pandas as pd
-import requests  # Used if fetching from Databricks API
-import plotly.express as px  # For visualization
 
-# Backend endpoint or file location for analyzed data
-DATA_BACKEND_URL = "https://your-databricks-backend.com/financial-data"  # Replace with actual URL
+# API base URL (from Flask/FastAPI)
+API_URL = "http://your_backend_api_url_here"
 
-# Function to fetch data from the backend (replace this with actual Databricks integration)
-def fetch_data():
-    try:
-        response = requests.get(DATA_BACKEND_URL)
+# User Authentication
+def user_login():
+    st.header("Login")
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    if st.button("Login"):
+        response = requests.post(f"{API_URL}/login", json={"username": username, "password": password})
         if response.status_code == 200:
-            # Assuming the backend returns data in CSV format
-            data = pd.read_csv(response.content)
-            return data
+            st.success("Login successful!")
+            return True
         else:
-            st.error("Failed to fetch data from the backend")
-            return None
-    except Exception as e:
-        st.error(f"Error fetching data: {str(e)}")
-        return None
+            st.error("Invalid credentials")
+            return False
 
-# Simulating data loading for this example
-@st.cache
-def load_data():
-    # You can replace this with `fetch_data()` once connected to the backend
-    data = pd.read_csv("financial_data.csv")  # Local data for demo
-    return data
+# Fetch and display budget overview
+def budget_overview():
+    st.subheader("Budget Overview")
+    response = requests.get(f"{API_URL}/budget")
+    if response.status_code == 200:
+        budget_data = response.json()
+        df = pd.DataFrame(budget_data)
+        # Create a line chart for visualizing monthly expenses
+        fig = px.line(df, x="age", y=["housing", "food", "tuition"], title="Budget Overview by Age")
+        st.plotly_chart(fig)
 
-# Calculate available money and expenditure
-def calculate_financial_metrics(data):
-    # Monthly income
-    data['total_expenses'] = data[['tuition', 'housing', 'food', 'transportation', 'books_supplies',
-                                   'entertainment', 'personal_care', 'technology', 'health_wellness',
-                                   'miscellaneous']].sum(axis=1)
-    
-    data['available_money'] = data['monthly_income'] - data['total_expenses']
-    return data
+# Fetch and display spending statistics
+def spending_statistics():
+    st.subheader("Spending Statistics by Category")
+    response = requests.get(f"{API_URL}/spending")
+    if response.status_code == 200:
+        spending_data = response.json()
+        df = pd.DataFrame(spending_data)
+        fig = px.pie(df, values="total_spending", names="category", title="Spending by Category")
+        st.plotly_chart(fig)
 
-# Create visualizations
-def create_visualizations(data):
-    # Visualize available money
-    st.header("Available Money")
-    fig = px.bar(data, x="age", y="available_money", color="year_in_school",
-                 labels={'available_money': 'Money Left After Expenses'}, title="Available Money by Age and Year in School")
-    st.plotly_chart(fig)
-    
-    # Visualize expenditure breakdown
-    st.header("Breakdown of Expenses")
-    expense_columns = ['tuition', 'housing', 'food', 'transportation', 'books_supplies', 
-                       'entertainment', 'personal_care', 'technology', 'health_wellness', 'miscellaneous']
-    
-    total_expenses = data[expense_columns].sum().reset_index()
-    total_expenses.columns = ['Expense Category', 'Total Amount']
-    fig_expenses = px.pie(total_expenses, names='Expense Category', values='Total Amount',
-                          title="Total Breakdown of Expenditures")
-    st.plotly_chart(fig_expenses)
-    
-    # Visualize saving/investing recommendations
-    st.header("Potential Savings or Investments")
-    st.markdown("""
-    Based on your financial data, here are some places you could put your savings:
-    
-    - **Savings Account**: Low-risk, easy access.
-    - **Stocks/ETFs**: Higher returns but comes with risk.
-    - **Retirement Funds (e.g., IRA)**: Long-term investments for retirement.
-    """)
-    
-    fig_savings = px.bar(data, x="age", y="how_much_im_wanting_to_save", color="major",
-                         title="Desired Savings by Age and Major",
-                         labels={'how_much_im_wanting_to_save': 'Desired Savings Amount'})
-    st.plotly_chart(fig_savings)
+# Display individual student spending breakdown
+def student_spending():
+    st.subheader("Student Spending Breakdown")
+    response = requests.get(f"{API_URL}/student_spending")
+    if response.status_code == 200:
+        spending_data = response.json()
+        df = pd.DataFrame(spending_data)
+        
+        # Create a dropdown to select the student ID and view their expenses
+        student_id = st.selectbox("Select Student ID", df.index)
+        student_data = df.loc[student_id]
 
-# Main Streamlit app
+        st.write(f"Major: {student_data['major']}")
+        st.write(f"Year in School: {student_data['year_in_school']}")
+        st.write(f"Monthly Income: ${student_data['monthly_income']}")
+
+        # Visualize the student's spending across categories
+        categories = ["tuition", "housing", "food", "transportation", "books_supplies", "entertainment"]
+        fig = px.bar(student_data[categories], x=categories, y=student_data[categories].values, 
+                     title=f"Spending Breakdown for Student {student_id}")
+        st.plotly_chart(fig)
+
+# Main function to render the app
 def main():
-    st.title("College Student Financial Management App")
-    
-    # Load and process the data
-    data = load_data()  # This can be replaced with fetch_data() once Databricks integration is ready
-    if data is not None:
-        data = calculate_financial_metrics(data)
+    st.title("PennyWise - Financial AI Assistant")
+    if user_login():
+        st.sidebar.title("Dashboard")
+        option = st.sidebar.selectbox("Select Dashboard", ["Budget Overview", "Spending Statistics", "Student Spending Breakdown"])
         
-        # Display financial metrics
-        st.subheader("Financial Metrics Overview")
-        st.write(data[['age', 'year_in_school', 'monthly_income', 'total_expenses', 'available_money']])
-        
-        # Create charts and visualizations
-        create_visualizations(data)
+        if option == "Budget Overview":
+            budget_overview()
+        elif option == "Spending Statistics":
+            spending_statistics()
+        elif option == "Student Spending Breakdown":
+            student_spending()
 
 if __name__ == "__main__":
     main()
