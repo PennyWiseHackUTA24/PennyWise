@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import requests  # Used if fetching from Databricks API
-import plotly as px  # For visualization
+import plotly.express as px  # For visualization
 
 # Backend endpoint or file location for analyzed data
 DATA_BACKEND_URL = "https://your-databricks-backend.com/financial-data"  # Replace with actual URL
