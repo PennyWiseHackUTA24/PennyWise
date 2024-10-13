@@ -63,4 +63,18 @@ Please note that you will have to get a OpenAPI key for use of the financial AI 
    CHATGPT_API_URL = os.getenv("CHATGPT_API_URL", "https://api.openai.com/v1/chat/completions")
    CHATGPT_API_KEY = os.getenv("CHATGPT_API_KEY", "yourapikeyhere")
 
+7. Run backend
+   ```bash
+   flask run
 
+8. Open another terminal and CD frontend
+9. Run frontend
+    ```bash
+    streamlit run app.py
+
+
+### API Endpoint
+POST /userDataFrontend: Receives user data from the frontend and returns financial advice.
+
+### Contributing
+Contributions are welcome! Please submit a pull request or open an issue for discussion.
