@@ -61,9 +61,9 @@ if st.button("View Report"):
                 "type": "pie",
                 "radius": "50%",
                 "data": [
-                    {"value": total_expenses, "name": "Expenses", "itemStyle": {"color": "rgba(255, 99, 132, 0.6)"}},
-                    {"value": savings_goal, "name": "Savings", "itemStyle": {"color": "rgba(75, 192, 192, 0.6)"}},
-                    {"value": remaining_budget, "name": "Available", "itemStyle": {"color": "rgba(201, 203, 207, 0.6)"}},
+                    {"value": total_expenses, "name": "Expenses", "itemStyle": {"color": "#FF6384"}},
+                    {"value": savings_goal, "name": "Savings", "itemStyle": {"color": "#4BC0C0"}},
+                    {"value": remaining_budget, "name": "Available", "itemStyle": {"color": "#C9CBCE"}},
                 ]
             }
         ]
@@ -81,9 +81,9 @@ if st.button("View Report"):
     # Values for the Sankey diagram
     values = st.session_state.expenses + [savings_goal, remaining_budget]
 
-    # Colors (light and transparent)
+    # Colors: Savings green, expenses red, available money light gray
     colors = ['rgba(75, 192, 192, 0.6)', 'rgba(201, 203, 207, 0.6)', 'rgba(255, 99, 132, 0.6)']
-    node_colors = colors + ['rgba(255, 206, 86, 0.4)'] * len(st.session_state.expenses)
+    node_colors = ['rgba(75, 192, 192, 0.6)', 'rgba(201, 203, 207, 0.6)', 'rgba(255, 99, 132, 0.6)'] + ['rgba(255, 99, 132, 0.4)'] * len(st.session_state.expense_names)
 
     # Create the Sankey diagram
     fig = go.Figure(go.Sankey(
