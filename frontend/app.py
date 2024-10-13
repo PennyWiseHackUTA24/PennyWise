@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 
 # Load the CSV data (this assumes the CSV is in the same folder)
-df = pd.read_csv('student_spending.csv')
+df = pd.read_csv('/mount/src/pennywise/frontend/student_spending.csv')
 
 # Simulated user storage (For simplicity, we'll skip actual authentication logic)
 users = {}
