@@ -8,20 +8,28 @@ st.title("PennyWise - Financial Budget Assistant")
 # Step 1: Input income and extra earnings (like financial aid)
 st.header("Income and Extra Earnings")
 
-income = st.number_input("Enter your monthly income", min_value=0.0, step=100.0, format="%.2f")
-extra_earnings = st.number_input("Enter any extra earnings (e.g., financial aid)", min_value=0.0, step=100.0, format="%.2f")
+income = st.number_input("Enter your monthly income", min_value=0.0, step=100.0, value=0.0, format="%.2f")
+extra_earnings = st.number_input("Enter any extra earnings (e.g., financial aid)", min_value=0.0, step=100.0, value=0.0, format="%.2f")
 
 # Step 2: Add expenses with names and amounts
 st.header("Add Your Expenses")
 
-# Create lists to store expense names and values
+# Initialize session state if not already done
 if 'expenses' not in st.session_state:
     st.session_state.expenses = []
     st.session_state.expense_names = []
 
-# Input for expense name and amount
-expense_name = st.text_input("Enter the name of the expense (e.g., 'Table')")
-expense_input = st.number_input("Enter the expense amount", min_value=0.0, step=10.0, format="%.2f")
+# Function to reset the inputs after adding an expense
+def reset_expense_inputs():
+    st.session_state.expense_name = ""
+    st.session_state.expense_amount = 0.0
+
+# Display inputs for expense name and amount side by side
+col1, col2 = st.columns([2, 1])  # Wider for name, narrower for amount
+with col1:
+    expense_name = st.text_input("Expense Name", value=st.session_state.get('expense_name', ''), key='expense_name')
+with col2:
+    expense_input = st.number_input("Expense Amount", min_value=0.0, step=10.0, value=st.session_state.get('expense_amount', 0.0), key='expense_amount', format="%.2f")
 
 # Button to add expense to the list
 if st.button("Add Expense"):
@@ -29,6 +37,7 @@ if st.button("Add Expense"):
         st.session_state.expense_names.append(expense_name)
         st.session_state.expenses.append(expense_input)
         st.success(f"Expense '{expense_name}' of ${expense_input:.2f} added.")
+        reset_expense_inputs()  # Clear the inputs after adding
     else:
         st.error("Please enter a valid expense name and amount.")
 
@@ -40,7 +49,7 @@ if st.session_state.expenses:
 
 # Step 3: Input savings goal
 st.header("Set Your Savings Goal")
-savings_goal = st.number_input("How much would you like to save?", min_value=0.0, step=100.0, format="%.2f")
+savings_goal = st.number_input("How much would you like to save?", min_value=0.0, step=100.0, value=0.0, format="%.2f")
 
 # Step 4: Calculate and display the remaining budget
 if st.button("View Report"):
