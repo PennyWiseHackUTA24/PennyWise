@@ -1,5 +1,2 @@
 streamlit
 pandas
-RateMyProfessorAPI==1.3.6
-streamlit-echarts
-plotly.express
