@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotly.express as px
 
 # Title of the app
 st.title("PennyWise - Financial Budget Assistant")
@@ -31,7 +31,7 @@ if st.button("Add Expense"):
     if expense_name and expense_input > 0:
         st.session_state.expense_names.append(expense_name)
         st.session_state.expenses.append(expense_input)
-        st.success(f"Expense '{expense_name}' of ${expense_input:.2f} added. Please enter more expenses or proceed to the saving goal.")
+        st.success(f"Expense '{expense_name}' of ${expense_input:.2f} added.")
     else:
         st.error("Please enter a valid expense name and amount.")
 
@@ -61,19 +61,21 @@ if st.button("View Report"):
     st.write(f"Savings Goal: ${savings_goal:.2f}")
     st.write(f"Remaining Budget: ${remaining_budget:.2f}")
 
-    # Step 5: Bar chart visualization with all expenses and categories
+    # Step 5: Bar chart visualization with all expenses and categories using Plotly Express
     st.subheader("Income, Expenses, and Savings Breakdown")
 
     # Data for the bar chart
     categories = ['Income', 'Savings Goal'] + st.session_state.expense_names
     amounts = [total_income, savings_goal] + st.session_state.expenses
 
-    # Plotting the bar chart
-    fig, ax = plt.subplots()
-    ax.bar(categories, amounts, color=['blue'] + ['green'] + ['orange'] * len(st.session_state.expenses))
-    ax.set_ylabel("Amount ($)")
-    ax.set_title("Income vs Expenses vs Savings")
-    plt.xticks(rotation=45, ha='right')
+    # Create a DataFrame for Plotly
+    df = pd.DataFrame({
+        'Category': categories,
+        'Amount': amounts
+    })
 
-    # Show the chart
-    st.pyplot(fig)
+    # Create the bar chart using Plotly Express
+    fig = px.bar(df, x='Category', y='Amount', title='Income vs Expenses vs Savings', color='Category', text='Amount')
+
+    # Display the chart in Streamlit
+    st.plotly_chart(fig)
