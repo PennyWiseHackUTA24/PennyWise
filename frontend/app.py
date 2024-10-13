@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 from streamlit_echarts import st_echarts
 
 # Title of the app
-st.title("PennyWise - Financial Budget Assistant")
+st.set_page_config(page_title="PennyWise - Financial Budget Assistant", layout="wide")
 
 # Step 1: Input income and extra earnings (like financial aid)
 st.header("Income and Extra Earnings")
