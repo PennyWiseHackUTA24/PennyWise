@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 
 # Title of the app
 st.title("PennyWise - Financial Budget Assistant")
@@ -68,37 +69,48 @@ if st.button("View Report"):
     categories = ['Income', 'Savings Goal'] + st.session_state.expense_names
     amounts = [total_income, savings_goal] + st.session_state.expenses
 
-    # Assigning colors: income as blue, savings as green, expenses as red
-    colors = ['blue', 'green'] + ['red'] * len(st.session_state.expenses)
-
     # Create a DataFrame for Plotly
     df = pd.DataFrame({
         'Category': categories,
         'Amount': amounts
     })
 
-    # Create the bar chart using Plotly Express with custom color mapping
-    fig_bar = px.bar(df, x='Category', y='Amount', title='Income vs Expenses vs Savings', text='Amount',
-                     color='Category', color_discrete_sequence=colors)
+    # Create the bar chart using Plotly Express
+    fig = px.bar(df, x='Category', y='Amount', title='Income vs Expenses vs Savings', color='Category', text='Amount')
 
-    # Create a pie chart for available money, savings, and expenses
-    st.subheader("Available Money vs Expenses vs Savings")
+    # Display the chart in Streamlit
+    st.plotly_chart(fig)
 
-    available_money = total_income - total_expenses - savings_goal
-    pie_data = pd.DataFrame({
-        'Category': ['Available Money', 'Expenses', 'Savings'],
-        'Amount': [available_money, total_expenses, savings_goal]
-    })
+    # Step 6: Sankey Diagram Visualization
+    st.subheader("Sankey Diagram - Financial Flow")
 
-    # Custom color mapping for pie chart
-    pie_colors = {'Available Money': 'lightgray', 'Expenses': 'red', 'Savings': 'green'}
+    # Define nodes for the Sankey diagram
+    nodes = ['Income', 'Savings', 'Expenses'] + st.session_state.expense_names
 
-    fig_pie = px.pie(pie_data, values='Amount', names='Category', title='Available Money vs Expenses vs Savings',
-                     color='Category', color_discrete_map=pie_colors)
+    # Define the source and target relationships
+    sources = [0, 0, 0] + [2] * len(st.session_state.expense_names)  # Income -> Savings, Expenses and expenses categories
+    targets = [1, 2, 3] + list(range(4, len(nodes)))
 
-    # Step 6: Display the bar and pie charts side by side
-    col1, col2 = st.columns(2)
-    with col1:
-        st.plotly_chart(fig_bar)
-    with col2:
-        st.plotly_chart(fig_pie)
+    # Define the value for each flow
+    values = [savings_goal, total_expenses, remaining_budget] + st.session_state.expenses
+
+    # Create the Sankey diagram
+    sankey_fig = go.Figure(go.Sankey(
+        node=dict(
+            pad=15,
+            thickness=20,
+            line=dict(color="black", width=0.5),
+            label=nodes,
+            color=["blue", "green", "red"] + ["lightblue"] * len(st.session_state.expense_names)
+        ),
+        link=dict(
+            source=sources,
+            target=targets,
+            value=values
+        )
+    ))
+
+    # Update layout and display
+    sankey_fig.update_layout(title_text="Financial Flow Diagram", font_size=10)
+    st.plotly_chart(sankey_fig)
+
