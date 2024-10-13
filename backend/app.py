@@ -1,7 +1,7 @@
-# backend/app.py
+
 
 from flask import Flask
-from backend.api.chat import chat_bp
+from backend.api.chat import chat_bp, chat_api, chat_usrData
 
 
 def create_app():
@@ -9,7 +9,8 @@ def create_app():
 
     # Register Blueprints
     app.register_blueprint(chat_bp, url_prefix='/api')
-
+    app.register_blueprint(chat_api, url_prefix='/api')
+    app.register_blueprint(chat_usrData, url_prefix='/api')
     return app
 
 
