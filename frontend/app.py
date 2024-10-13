@@ -3,8 +3,11 @@ import pandas as pd
 import plotly.graph_objects as go
 from streamlit_echarts import st_echarts
 
-# Title of the app
+# Set page configuration
 st.set_page_config(page_title="PennyWise - Financial Budget Assistant", layout="wide")
+
+# Title of the app
+st.title("PennyWise - Financial Budget Assistant")
 
 # Step 1: Input income and extra earnings (like financial aid)
 st.header("Income and Extra Earnings")
@@ -36,11 +39,19 @@ if st.button("Add Expense"):
     else:
         st.error("Please enter a valid expense name and amount.")
 
-# Display the added expenses
+# Display the added expenses with delete option
 if st.session_state.expenses:
     st.subheader("Your Added Expenses")
-    for name, value in zip(st.session_state.expense_names, st.session_state.expenses):
-        st.write(f"{name}: ${value:.2f}")
+    for index, (name, value) in enumerate(zip(st.session_state.expense_names, st.session_state.expenses)):
+        col1, col2, col3 = st.columns([2, 1, 1])
+        with col1:
+            st.write(f"{name}: ${value:.2f}")
+        with col3:
+            if st.button(f"Delete {name}", key=f"delete_{index}"):
+                # Remove the expense and name
+                del st.session_state.expense_names[index]
+                del st.session_state.expenses[index]
+                st.success(f"Deleted {name}")
 
 # Step 3: Input savings goal
 st.header("Set Your Savings Goal")
@@ -94,13 +105,10 @@ if st.button("View Report"):
     st.subheader("Sankey Diagram - Financial Flow")
 
     # Define nodes for the Sankey diagram
-    nodes = ['Income', 'Savings', 'Total Expenses', 'Available Money'] + st.session_state.expense_names
+    nodes = ['Income', 'Savings', 'Expenses', 'Available Money'] + st.session_state.expense_names
 
     # Define the source and target relationships
-    # Income -> Savings, Total Expenses, Available Money
-    sources = [0, 0, 0] + [2] * len(st.session_state.expense_names)  # Expenses flow from Total Expenses
-
-    # Income -> [Savings, Total Expenses, Available Money] and then from Total Expenses -> individual expenses
+    sources = [0, 0, 0] + [2] * len(st.session_state.expense_names)  # Income -> Savings, Expenses, and Available Money, then to expense categories
     targets = [1, 2, 3] + list(range(4, len(nodes)))
 
     # Define the value for each flow
@@ -113,7 +121,7 @@ if st.button("View Report"):
             thickness=20,
             line=dict(color="black", width=0.5),
             label=nodes,
-            color=["lightgrey", "green", "red", "lightgrey"] + ["lightblue"] * len(st.session_state.expense_names)
+            color=["blue", "green", "red", "lightgrey"] + ["lightblue"] * len(st.session_state.expense_names)
         ),
         link=dict(
             source=sources,
