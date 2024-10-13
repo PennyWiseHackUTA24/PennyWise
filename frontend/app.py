@@ -14,23 +14,17 @@ extra_earnings = st.number_input("Enter any extra earnings (e.g., financial aid)
 # Step 2: Add expenses with names and amounts
 st.header("Add Your Expenses")
 
-# Initialize session state for expenses if not already done
+# Initialize session state if not already done
 if 'expenses' not in st.session_state:
     st.session_state.expenses = []
     st.session_state.expense_names = []
 
-# Initialize temporary storage for current inputs
-if 'temp_expense_name' not in st.session_state:
-    st.session_state.temp_expense_name = ""
-if 'temp_expense_amount' not in st.session_state:
-    st.session_state.temp_expense_amount = 0.0
-
 # Display inputs for expense name and amount side by side
 col1, col2 = st.columns([2, 1])  # Wider for name, narrower for amount
 with col1:
-    expense_name = st.text_input("Expense Name", key="temp_expense_name", value=st.session_state.temp_expense_name)
+    expense_name = st.text_input("Expense Name", key="expense_name")
 with col2:
-    expense_input = st.number_input("Expense Amount", min_value=0.0, step=10.0, value=st.session_state.temp_expense_amount, key="temp_expense_amount")
+    expense_input = st.number_input("Expense Amount", min_value=0.0, step=10.0, value=0.0, format="%.2f", key="expense_amount")
 
 # Button to add expense to the list
 if st.button("Add Expense"):
@@ -38,9 +32,6 @@ if st.button("Add Expense"):
         st.session_state.expense_names.append(expense_name)
         st.session_state.expenses.append(expense_input)
         st.success(f"Expense '{expense_name}' of ${expense_input:.2f} added.")
-        # Reset the inputs by clearing the temporary state
-        st.session_state.temp_expense_name = ""
-        st.session_state.temp_expense_amount = 0.0
     else:
         st.error("Please enter a valid expense name and amount.")
 
