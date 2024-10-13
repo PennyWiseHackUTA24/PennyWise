@@ -21,15 +21,15 @@ if 'expenses' not in st.session_state:
 
 # Function to reset the inputs after adding an expense
 def reset_expense_inputs():
-    st.session_state.expense_name = ""
-    st.session_state.expense_amount = 0.0
+    st.session_state['expense_name'] = ""  # Reset the text input
+    st.session_state['expense_amount'] = 0.0  # Reset the number input
 
 # Display inputs for expense name and amount side by side
 col1, col2 = st.columns([2, 1])  # Wider for name, narrower for amount
 with col1:
-    expense_name = st.text_input("Expense Name", value=st.session_state.get('expense_name', ''), key='expense_name')
+    expense_name = st.text_input("Expense Name", key="expense_name", value="")
 with col2:
-    expense_input = st.number_input("Expense Amount", min_value=0.0, step=10.0, value=st.session_state.get('expense_amount', 0.0), key='expense_amount', format="%.2f")
+    expense_input = st.number_input("Expense Amount", min_value=0.0, step=10.0, value=0.0, format="%.2f", key="expense_amount")
 
 # Button to add expense to the list
 if st.button("Add Expense"):
