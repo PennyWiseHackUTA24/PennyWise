@@ -6,11 +6,10 @@
 - [Introduction](#introduction)
 - [Features](#features)
 - [Technologies Used](#technologies-used)
-- [Installation](#installation)
 - [Usage](#usage)
 - [API Endpoints](#api-endpoints)
 - [Contributing](#contributing)
-- [License](#license)
+
 
 ## Introduction
 PennyWise is an AI-powered financial assistant designed to help students manage their finances effectively. It provides personalized advice and tools to track expenses, create budgets, and improve financial literacy.
