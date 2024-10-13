@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
+from pyecharts.charts import Pie
+from streamlit_echarts import st_echarts
 
 # Title of the app
 st.title("PennyWise - Financial Budget Assistant")
@@ -62,25 +63,33 @@ if st.button("View Report"):
     st.write(f"Savings Goal: ${savings_goal:.2f}")
     st.write(f"Remaining Budget (Available Money): ${remaining_budget:.2f}")
 
-    # Step 5: Pie chart visualization
+    # Step 5: Pie chart visualization using st_echarts
     st.subheader("Income, Expenses, and Savings Breakdown")
 
     # Data for the pie chart
-    labels = ['Savings', 'Expenses', 'Available Money']
-    values = [savings_goal, total_expenses, remaining_budget]
-    colors = ['green', 'red', 'lightgrey']
+    pie_options = {
+        "series": [
+            {
+                "type": 'pie',
+                "radius": '50%',
+                "data": [
+                    {"value": savings_goal, "name": 'Savings', "itemStyle": {"color": "green"}},
+                    {"value": total_expenses, "name": 'Expenses', "itemStyle": {"color": "red"}},
+                    {"value": remaining_budget, "name": 'Available Money', "itemStyle": {"color": "lightgrey"}},
+                ]
+            }
+        ],
+        "tooltip": {
+            "trigger": 'item',
+            "formatter": '{a} <br/>{b} : {c} ({d}%)'
+        },
+        "legend": {
+            "top": '5%',
+            "left": 'center'
+        }
+    }
 
-    # Create the pie chart using Plotly Express
-    pie_fig = px.pie(
-        values=values,
-        names=labels,
-        color=labels,
-        color_discrete_map={'Savings': 'green', 'Expenses': 'red', 'Available Money': 'lightgrey'},
-        title='Savings, Expenses, and Available Money Breakdown'
-    )
-
-    # Display the pie chart in Streamlit
-    st.plotly_chart(pie_fig)
+    st_echarts(options=pie_options, height="600px")
 
     # Step 6: Sankey Diagram Visualization
     st.subheader("Sankey Diagram - Financial Flow")
@@ -89,7 +98,7 @@ if st.button("View Report"):
     nodes = ['Income', 'Savings', 'Expenses', 'Available Money'] + st.session_state.expense_names
 
     # Define the source and target relationships
-    sources = [0, 0, 0] + [2] * len(st.session_state.expense_names)  # Income -> Savings, Expenses, and Available money, then to expense categories
+    sources = [0, 0, 0] + [2] * len(st.session_state.expense_names)  # Income -> Savings, Expenses, and Available Money, then to expense categories
     targets = [1, 2, 3] + list(range(4, len(nodes)))
 
     # Define the value for each flow
