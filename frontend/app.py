@@ -31,7 +31,7 @@ if st.button("Add Expense"):
     if expense_name and expense_input > 0:
         st.session_state.expense_names.append(expense_name)
         st.session_state.expenses.append(expense_input)
-        st.success(f"Expense '{expense_name}' of ${expense_input:.2f} added.")
+        st.success(f"Expense '{expense_name}' of ${expense_input:.2f} added. Please enter more expenses or proceed to the saving goal.")
     else:
         st.error("Please enter a valid expense name and amount.")
 
