@@ -41,3 +41,26 @@ Please note that you will have to get a OpenAPI key for use of the financial AI 
     ```bash
     pip install -r requirements.txt
 
+5. Backend .env
+     Make a .env file and add following variables:
+   ```bash
+   CHATGPT_API_URL= 'https://api.openai.com/v1/chat/completions'
+   CHATGPT_API_KEY=yourapikey
+
+6. Config file
+  (due to github secrets we had to remove contents of this file and re-add after pushing)
+   Add the following code to config.py in the backend:
+
+   ```bash
+   config.py file:
+
+   import os
+
+   from dotenv import load_dotenv
+   load_dotenv()
+
+
+   CHATGPT_API_URL = os.getenv("CHATGPT_API_URL", "https://api.openai.com/v1/chat/completions")
+   CHATGPT_API_KEY = os.getenv("CHATGPT_API_KEY", "yourapikeyhere")
+
+
