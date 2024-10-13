@@ -1,7 +1,9 @@
 
 from requests import post
-# from backend.config.config import CHATGPT_API_KEY, CHATGPT_API_URL
 import requests
+
+
+from backend.config.config import CHATGPT_API_KEY, CHATGPT_API_URL
 
 
 def get_chatgpt_response(user_input):
