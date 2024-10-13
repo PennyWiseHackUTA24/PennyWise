@@ -60,35 +60,36 @@ if st.button("View Report"):
     st.write(f"Total Income: ${total_income:.2f}")
     st.write(f"Total Expenses: ${total_expenses:.2f}")
     st.write(f"Savings Goal: ${savings_goal:.2f}")
-    st.write(f"Remaining Budget: ${remaining_budget:.2f}")
+    st.write(f"Remaining Budget (Available Money): ${remaining_budget:.2f}")
 
-    # Step 5: Bar chart visualization with all expenses and categories using Plotly Express
+    # Step 5: Pie chart visualization
     st.subheader("Income, Expenses, and Savings Breakdown")
 
-    # Data for the bar chart
-    categories = ['Income', 'Savings Goal'] + st.session_state.expense_names
-    amounts = [total_income, savings_goal] + st.session_state.expenses
+    # Data for the pie chart
+    labels = ['Savings', 'Expenses', 'Available Money']
+    values = [savings_goal, total_expenses, remaining_budget]
+    colors = ['green', 'red', 'lightgrey']
 
-    # Create a DataFrame for Plotly
-    df = pd.DataFrame({
-        'Category': categories,
-        'Amount': amounts
-    })
+    # Create the pie chart using Plotly Express
+    pie_fig = px.pie(
+        values=values,
+        names=labels,
+        color=labels,
+        color_discrete_map={'Savings': 'green', 'Expenses': 'red', 'Available Money': 'lightgrey'},
+        title='Savings, Expenses, and Available Money Breakdown'
+    )
 
-    # Create the bar chart using Plotly Express
-    fig = px.bar(df, x='Category', y='Amount', title='Income vs Expenses vs Savings', color='Category', text='Amount')
-
-    # Display the chart in Streamlit
-    st.plotly_chart(fig)
+    # Display the pie chart in Streamlit
+    st.plotly_chart(pie_fig)
 
     # Step 6: Sankey Diagram Visualization
     st.subheader("Sankey Diagram - Financial Flow")
 
     # Define nodes for the Sankey diagram
-    nodes = ['Income', 'Savings', 'Expenses'] + st.session_state.expense_names
+    nodes = ['Income', 'Savings', 'Expenses', 'Available Money'] + st.session_state.expense_names
 
     # Define the source and target relationships
-    sources = [0, 0, 0] + [2] * len(st.session_state.expense_names)  # Income -> Savings, Expenses and expenses categories
+    sources = [0, 0, 0] + [2] * len(st.session_state.expense_names)  # Income -> Savings, Expenses, and Available money, then to expense categories
     targets = [1, 2, 3] + list(range(4, len(nodes)))
 
     # Define the value for each flow
@@ -101,12 +102,13 @@ if st.button("View Report"):
             thickness=20,
             line=dict(color="black", width=0.5),
             label=nodes,
-            color=["blue", "green", "red"] + ["lightblue"] * len(st.session_state.expense_names)
+            color=["blue", "green", "red", "lightgrey"] + ["lightblue"] * len(st.session_state.expense_names)
         ),
         link=dict(
             source=sources,
             target=targets,
-            value=values
+            value=values,
+            color=["green", "red", "lightgrey"] + ["lightblue"] * len(st.session_state.expense_names)
         )
     ))
 
